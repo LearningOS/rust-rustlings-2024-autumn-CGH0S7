@@ -7,11 +7,18 @@
 #[derive(Debug)]
 enum Message {
     // TODO: define a few types of messages as used below
+    Quit(u8),
+    Echo(String),
+    Move(String, String),
+    ChangeColor(i8),
 }
 
 fn main() {
-    println!("{:?}", Message::Quit);
-    println!("{:?}", Message::Echo);
-    println!("{:?}", Message::Move);
-    println!("{:?}", Message::ChangeColor);
+    println!("{:?}", Message::Quit(1));
+    println!("{:?}", Message::Echo(String::from("RUSTLINGS")));
+    println!(
+        "{:?}",
+        Message::Move(String::from("Up"), String::from("Down"))
+    );
+    println!("{:?}", Message::ChangeColor(-128));
 }
