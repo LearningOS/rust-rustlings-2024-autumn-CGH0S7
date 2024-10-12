@@ -2,11 +2,10 @@
     single linked list merge
     This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
-use std::vec::*;
+// use std::vec::*;
 
 #[derive(Debug)]
 struct Node<T> {
@@ -41,7 +40,9 @@ impl<T> LinkedList<T> {
             end: None,
         }
     }
+}
 
+impl<T: Ord> LinkedList<T> {
     pub fn add(&mut self, obj: T) {
         let mut node = Box::new(Node::new(obj));
         node.next = None;
@@ -67,13 +68,59 @@ impl<T> LinkedList<T> {
             },
         }
     }
-    pub fn merge(list_a: LinkedList<T>, list_b: LinkedList<T>) -> Self {
-        //TODO
-        Self {
-            length: 0,
-            start: None,
-            end: None,
+
+    pub fn push_node(&mut self, node: NonNull<Node<T>>) {
+        unsafe {
+            (*node.as_ptr()).next = None;
         }
+
+        match self.end {
+            None => self.start = Some(node),
+            Some(end_ptr) => unsafe {
+                (*end_ptr.as_ptr()).next = Some(node);
+            },
+        }
+        self.end = Some(node);
+        self.length += 1;
+    }
+
+    pub fn merge(list_a: LinkedList<T>, list_b: LinkedList<T>) -> Self {
+        let mut merged_list = LinkedList::new();
+
+        let mut a_ptr = list_a.start;
+        let mut b_ptr = list_b.start;
+
+        while let (Some(a), Some(b)) = (a_ptr, b_ptr) {
+            unsafe {
+                if (*a.as_ptr()).val <= (*b.as_ptr()).val {
+                    let next_a = (*a.as_ptr()).next;
+                    merged_list.push_node(a);
+                    a_ptr = next_a;
+                } else {
+                    let next_b = (*b.as_ptr()).next;
+                    merged_list.push_node(b);
+                    b_ptr = next_b;
+                }
+            }
+        }
+
+        while let Some(a) = a_ptr {
+            unsafe {
+                let next_a = (*a.as_ptr()).next;
+                merged_list.push_node(a);
+                a_ptr = next_a;
+            }
+        }
+
+        while let Some(b) = b_ptr {
+            unsafe {
+                let next_b = (*b.as_ptr()).next;
+                merged_list.push_node(b);
+                b_ptr = next_b;
+            }
+        }
+
+        merged_list
     }
 }
 
